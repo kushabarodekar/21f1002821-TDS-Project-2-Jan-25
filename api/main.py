@@ -7,4 +7,4 @@ app = FastAPI()
 
 @app.get("/")
 async def health_check():
-    return "Up & Running Successfully "+API_KEY
+    return "Up & Running Successfully "
