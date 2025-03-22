@@ -1,5 +1,6 @@
-from fastapi import FastAPI, Form
+from fastapi import FastAPI, Form, File
 from fastapi.middleware.cors import CORSMiddleware
+from typing import Optional
 
 app = FastAPI()
 
@@ -17,7 +18,7 @@ async def health_check():
     return "Up & Running Successfully"
 
 @app.post("/api")
-async def task_runner(question: str = Form(None),file: UploadFile = File(None)):
+async def task_runner(question: Optional[str] = Form(None),file: Optional[UploadFile] = File(None)):
     if question is None:
         return {"message": "No question provided"}
     
