@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+import os
 
 API_KEY = os.getenv("AIPROXY_TOKEN")
 
