@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional
 import requests
 import os
+import logging
 
 API_KEY = os.getenv("AIPROXY_TOKEN")
 # Configure logging
