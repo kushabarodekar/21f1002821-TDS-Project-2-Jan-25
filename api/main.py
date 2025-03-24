@@ -60,8 +60,8 @@ def queryLLM(query):
                 "messages": [{"role": "system","content": META_PROMPT},{"role": "user", "content": query}],
                 "tool_choice": "auto",
                 }
-        print(data)
-        response = requests.post("http://aiproxy.sanand.workers.dev/openai/v1/chat/completions", headers=headers, json=data, allow_redirects=True)
+        session = requests.Session()
+        response = session.post("http://aiproxy.sanand.workers.dev/openai/v1/chat/completions", headers=headers, json=data)
     except Exception as e:
         if 400 <= response.status_code < 500:
             raise HTTPException(status_code=400, detail="Bad Request : "+response.text)
