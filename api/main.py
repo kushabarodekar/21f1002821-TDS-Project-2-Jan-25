@@ -63,13 +63,14 @@ def queryLLM(query):
                 "messages": [{"role": "system","content": META_PROMPT},{"role": "user", "content": query}],
                 "tool_choice": "auto",
                 }
-        logging.info(data)
-        session = requests.Session()
-        response = session.post("http://aiproxy.sanand.workers.dev/openai/v1/chat/completions", headers=headers, json=data)
-        logging.info(response.status_code)
+        #logging.info(data)
+        #session = requests.Session()
+        #response = session.post("http://aiproxy.sanand.workers.dev/openai/v1/chat/completions", headers=headers, json=data)
+        #logging.info(response.status_code)
     except Exception as e:
         if 400 <= response.status_code < 500:
             raise HTTPException(status_code=400, detail="Bad Request : "+response.text)
         else:
             raise HTTPException(status_code=500, detail="Internal Server Error ")
-    return response.choices[0].message.content
+    #return response.choices[0].message.content
+    return data
