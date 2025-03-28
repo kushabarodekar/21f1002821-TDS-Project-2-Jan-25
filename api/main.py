@@ -40,7 +40,6 @@ Given a question or task description, produce a detailed system prompt to guide 
 - Output Format: Explicitly the most appropriate output format, in detail. This should include length and syntax (e.g. short sentence, paragraph, JSON, etc.)
     - For tasks outputting well-defined or structured data  bias toward outputting a JSON.
     - JSON should never be wrapped in code blocks unless explicitly requested.
-    - Return only the expected output don't include any other token
 
 The final prompt you output should adhere to the following structure below. Do not include any additional commentary, only output the completed system prompt. SPECIFICALLY, do not include any additional messages at the start or end of the prompt. (e.g. no "---")
 """.strip()
@@ -50,10 +49,10 @@ async def task_runner(question: Optional[str] = Form(None),file: Optional[Upload
     if question is None:
         return {"message": "No question provided"}
 
-    prompt = queryLLM(question)
-    return getFinalResult(prompt)
+    prompt = queryLLM(question,file)
+    return getFinalResult(prompt,file)
 
-def queryLLM(query):
+def queryLLM(query,file):
     try:
         headers = {
             "Content-Type": "application/json",
@@ -62,7 +61,7 @@ def queryLLM(query):
         data = {"model": "gpt-4o-mini", 
                 "messages": [{"role": "system","content": META_PROMPT},{"role": "user", "content": query}]
                 }
-        response = requests.post("https://aiproxy.sanand.workers.dev/openai/v1/chat/completions", headers=headers, json=data)
+        response = requests.post("https://aiproxy.sanand.workers.dev/openai/v1/chat/completions", headers=headers, json=data, files=file)
     except Exception as e:
         if 400 <= response.status_code < 500:
             print(str(e))
@@ -73,7 +72,7 @@ def queryLLM(query):
     response.raise_for_status() 
     return response.json()["choices"][0]["message"]["content"].strip()
     
-def getFinalResult(prompt):
+def getFinalResult(prompt,file):
     try:
         headers = {
             "Content-Type": "application/json",
@@ -82,7 +81,7 @@ def getFinalResult(prompt):
         data = {"model": "gpt-4o-mini", 
                 "messages": [{"role": "user", "content": prompt}]
                 }
-        response = requests.post("https://aiproxy.sanand.workers.dev/openai/v1/chat/completions", headers=headers, json=data)
+        response = requests.post("https://aiproxy.sanand.workers.dev/openai/v1/chat/completions", headers=headers, json=data, files=file)
     except Exception as e:
         if 400 <= response.status_code < 500:
             print(str(e))
