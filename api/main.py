@@ -3,11 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional
 import requests
 import os
-import logging
 
 API_KEY = os.getenv("AIPROXY_TOKEN")
-# Configure logging
-logging.basicConfig(level=logging.INFO)
 
 app = FastAPI()
 
@@ -51,8 +48,28 @@ The final prompt you output should adhere to the following structure below. Do n
 async def task_runner(question: Optional[str] = Form(None),file: Optional[UploadFile] = File(None)):
     if question is None:
         return {"message": "No question provided"}
-    return {"Prompt":queryLLM(question)}
 
+    try:
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {API_KEY}",
+        }
+        data = {"model": "gpt-4o-mini", 
+                "messages": [{"role": "system","content": META_PROMPT},{"role": "user", "content": query}],
+                "tool_choice": "auto",
+                }
+        session = requests.Session()
+        response = session.post("https://aiproxy.sanand.workers.dev/openai/v1/chat/completions", headers=headers, json=data)
+    except Exception as e:
+        if 400 <= response.status_code < 500:
+            raise HTTPException(status_code=400, detail="Bad Request : "+response.text)
+        else:
+            raise HTTPException(status_code=500, detail="Internal Server Error ")
+    response.raise_for_status() 
+    jsonObject = response.json()["choices"][0]
+    return {"Prompt":jsonObject}
+
+'''
 def queryLLM(query):
     try:
         headers = {
@@ -63,14 +80,14 @@ def queryLLM(query):
                 "messages": [{"role": "system","content": META_PROMPT},{"role": "user", "content": query}],
                 "tool_choice": "auto",
                 }
-        #logging.info(data)
-        #session = requests.Session()
-        #response = session.post("http://aiproxy.sanand.workers.dev/openai/v1/chat/completions", headers=headers, json=data)
-        #logging.info(response.status_code)
+        session = requests.Session()
+        response = session.post("https://aiproxy.sanand.workers.dev/openai/v1/chat/completions", headers=headers, json=data)
     except Exception as e:
         if 400 <= response.status_code < 500:
             raise HTTPException(status_code=400, detail="Bad Request : "+response.text)
         else:
             raise HTTPException(status_code=500, detail="Internal Server Error ")
-    #return response.choices[0].message.content
-    return data
+    response.raise_for_status() 
+    return response.choices[0].message.content
+    
+    '''
