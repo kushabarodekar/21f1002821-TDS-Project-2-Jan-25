@@ -62,9 +62,9 @@ async def task_runner(question: Optional[str] = Form(None),file: Optional[Upload
         response = session.post("https://aiproxy.sanand.workers.dev/openai/v1/chat/completions", headers=headers, json=data)
     except Exception as e:
         if 400 <= response.status_code < 500:
-            raise HTTPException(status_code=400, detail="Bad Request : "+response.text)
+            raise HTTPException(status_code=400, detail="Bad Request : "+str(e))
         else:
-            raise HTTPException(status_code=500, detail="Internal Server Error ")
+            raise HTTPException(status_code=500, detail="Internal Server Error "+str(e))
     response.raise_for_status() 
     jsonObject = response.json()["choices"][0]
     return {"Prompt":jsonObject}
