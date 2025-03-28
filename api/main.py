@@ -55,8 +55,7 @@ async def task_runner(question: Optional[str] = Form(None),file: Optional[Upload
             "Authorization": f"Bearer {API_KEY}",
         }
         data = {"model": "gpt-4o-mini", 
-                "messages": [{"role": "system","content": META_PROMPT},{"role": "user", "content": question}],
-                "tool_choice": "auto",
+                "messages": [{"role": "system","content": META_PROMPT},{"role": "user", "content": question}]
                 }
         print(data)
         #session = requests.Session()
