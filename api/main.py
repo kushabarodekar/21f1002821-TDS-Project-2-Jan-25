@@ -58,8 +58,10 @@ async def task_runner(question: Optional[str] = Form(None),file: Optional[Upload
                 "messages": [{"role": "system","content": META_PROMPT},{"role": "user", "content": question}],
                 "tool_choice": "auto",
                 }
+        print(data)
         #session = requests.Session()
         response = requests.post("https://aiproxy.sanand.workers.dev/openai/v1/chat/completions", headers=headers, json=data)
+        print(response.text)
     except Exception as e:
         if 400 <= response.status_code < 500:
             print(response.text)
