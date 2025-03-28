@@ -34,12 +34,12 @@ Given a question or task description, produce a detailed system prompt to guide 
 - Examples: Include high-quality examples if helpful, using placeholders [in brackets] for complex elements.
    - What kinds of examples may need to be included, how many, and whether they are complex enough to benefit from placeholders.
 - Clarity and Conciseness: Use clear, specific language. Avoid unnecessary instructions or bland statements.
-- Formatting: Use markdown features for readability. DO NOT USE ``` CODE BLOCKS UNLESS SPECIFICALLY REQUESTED.
+- Formatting: Use markdown features for readability.
 - Preserve User Content: If the input task or prompt includes extensive guidelines or examples, preserve them entirely, or as closely as possible. If they are vague, consider breaking down into sub-steps. Keep any details, guidelines, examples, variables, or placeholders provided by the user.
 - Constants: DO include constants in the prompt, as they are not susceptible to prompt injection. Such as guides, rubrics, and examples.
 - Output Format: Explicitly the most appropriate output format, in detail. This should include length and syntax (e.g. short sentence, paragraph, JSON, etc.)
-    - For tasks outputting well-defined or structured data (classification, JSON, etc.) bias toward outputting a JSON.
-    - JSON should never be wrapped in code blocks (```) unless explicitly requested.
+    - For tasks outputting well-defined or structured data  bias toward outputting a JSON.
+    - JSON should never be wrapped in code blocks unless explicitly requested.
 
 The final prompt you output should adhere to the following structure below. Do not include any additional commentary, only output the completed system prompt. SPECIFICALLY, do not include any additional messages at the start or end of the prompt. (e.g. no "---")
 """.strip()
@@ -58,10 +58,8 @@ async def task_runner(question: Optional[str] = Form(None),file: Optional[Upload
                 "messages": [{"role": "system","content": META_PROMPT},{"role": "user", "content": question}],
                 "tool_choice": "auto",
                 }
-        print(data)
         #session = requests.Session()
         response = requests.post("https://aiproxy.sanand.workers.dev/openai/v1/chat/completions", headers=headers, json=data)
-        print(response)
     except Exception as e:
         if 400 <= response.status_code < 500:
             print(response.text)
