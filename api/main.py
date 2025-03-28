@@ -49,7 +49,8 @@ async def task_runner(question: Optional[str] = Form(None),file: Optional[Upload
     if question is None:
         return {"message": "No question provided"}
 
-    return {"Result":queryLLM(question)}
+    prompt = queryLLM(question)
+    return getFinalResult(prompt)
 
 def queryLLM(query):
     try:
@@ -61,17 +62,32 @@ def queryLLM(query):
                 "messages": [{"role": "system","content": META_PROMPT},{"role": "user", "content": query}]
                 }
         response = requests.post("https://aiproxy.sanand.workers.dev/openai/v1/chat/completions", headers=headers, json=data)
-        print(response.text)
     except Exception as e:
         if 400 <= response.status_code < 500:
-            print(response.text)
             print(str(e))
             raise HTTPException(status_code=400, detail="Bad Request : "+response.text+str(e))
         else:
-            print(response.text)
             print(str(e))
             raise HTTPException(status_code=500, detail="Internal Server Error "+response.text+str(e))
     response.raise_for_status() 
-    print(response.json()["choices"][0])
     return response.json()["choices"][0]["message"]["content"].strip()
     
+def getFinalResult(prompt):
+    try:
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {API_KEY}",
+        }
+        data = {"model": "gpt-4o-mini", 
+                "messages": [{"role": "user", "content": prompt}]
+                }
+        response = requests.post("https://aiproxy.sanand.workers.dev/openai/v1/chat/completions", headers=headers, json=data)
+    except Exception as e:
+        if 400 <= response.status_code < 500:
+            print(str(e))
+            raise HTTPException(status_code=400, detail="Bad Request : "+response.text+str(e))
+        else:
+            print(str(e))
+            raise HTTPException(status_code=500, detail="Internal Server Error "+response.text+str(e))
+    response.raise_for_status() 
+    return response.json()["choices"][0]["message"]["content"].strip()
