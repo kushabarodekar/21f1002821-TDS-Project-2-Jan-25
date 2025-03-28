@@ -49,16 +49,17 @@ async def task_runner(question: Optional[str] = Form(None),file: Optional[Upload
     if question is None:
         return {"message": "No question provided"}
 
+    return {"Result":queryLLM(question)}
+
+def queryLLM(query):
     try:
         headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {API_KEY}",
         }
         data = {"model": "gpt-4o-mini", 
-                "messages": [{"role": "system","content": META_PROMPT},{"role": "user", "content": question}]
+                "messages": [{"role": "system","content": META_PROMPT},{"role": "user", "content": query}]
                 }
-        print(data)
-        #session = requests.Session()
         response = requests.post("https://aiproxy.sanand.workers.dev/openai/v1/chat/completions", headers=headers, json=data)
         print(response.text)
     except Exception as e:
@@ -71,27 +72,6 @@ async def task_runner(question: Optional[str] = Form(None),file: Optional[Upload
             print(str(e))
             raise HTTPException(status_code=500, detail="Internal Server Error "+response.text+str(e))
     response.raise_for_status() 
-    return {"Result":response.json()}
-
-'''
-def queryLLM(query):
-    try:
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {API_KEY}",
-        }
-        data = {"model": "gpt-4o-mini", 
-                "messages": [{"role": "system","content": META_PROMPT},{"role": "user", "content": query}],
-                "tool_choice": "auto",
-                }
-        session = requests.Session()
-        response = session.post("https://aiproxy.sanand.workers.dev/openai/v1/chat/completions", headers=headers, json=data)
-    except Exception as e:
-        if 400 <= response.status_code < 500:
-            raise HTTPException(status_code=400, detail="Bad Request : "+response.text)
-        else:
-            raise HTTPException(status_code=500, detail="Internal Server Error ")
-    response.raise_for_status() 
-    return response.choices[0].message.content
+    print(response.json()["choices"][0])
+    return response.json()["choices"][0]["message"]["content"].strip()
     
-    '''
