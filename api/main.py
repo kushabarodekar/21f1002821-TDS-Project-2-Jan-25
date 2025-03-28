@@ -58,13 +58,14 @@ async def task_runner(question: Optional[str] = Form(None),file: Optional[Upload
                 "messages": [{"role": "system","content": META_PROMPT},{"role": "user", "content": query}],
                 "tool_choice": "auto",
                 }
+        print(data)
         session = requests.Session()
         response = session.post("https://aiproxy.sanand.workers.dev/openai/v1/chat/completions", headers=headers, json=data)
     except Exception as e:
         if 400 <= response.status_code < 500:
-            raise HTTPException(status_code=400, detail="Bad Request : "+str(e))
+            raise HTTPException(status_code=400, detail="Bad Request : "+response.text+str(e))
         else:
-            raise HTTPException(status_code=500, detail="Internal Server Error "+str(e))
+            raise HTTPException(status_code=500, detail="Internal Server Error "+response.text+str(e))
     response.raise_for_status() 
     jsonObject = response.json()["choices"][0]
     return {"Prompt":jsonObject}
