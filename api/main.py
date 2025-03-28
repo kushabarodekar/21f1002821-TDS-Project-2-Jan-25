@@ -40,6 +40,7 @@ Given a question or task description, produce a detailed system prompt to guide 
 - Output Format: Explicitly the most appropriate output format, in detail. This should include length and syntax (e.g. short sentence, paragraph, JSON, etc.)
     - For tasks outputting well-defined or structured data  bias toward outputting a JSON.
     - JSON should never be wrapped in code blocks unless explicitly requested.
+    - Return only the expected output don't include any other token
 
 The final prompt you output should adhere to the following structure below. Do not include any additional commentary, only output the completed system prompt. SPECIFICALLY, do not include any additional messages at the start or end of the prompt. (e.g. no "---")
 """.strip()
