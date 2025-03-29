@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Form, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from typing import Optional
+from typing import Optional, List
 import requests
 import os
 
@@ -45,14 +45,14 @@ The final prompt you output should adhere to the following structure below. Do n
 """.strip()
 
 @app.post("/api")
-async def task_runner(question: Optional[str] = Form(None),file: Optional[UploadFile] = File(None)):
+async def task_runner(question: Optional[str] = Form(None),files: Optional[List[UploadFile]] = File(None)):
     if question is None:
         return {"message": "No question provided"}
 
-    prompt = queryLLM(question,file)
-    return getFinalResult(prompt,file)
+    prompt = queryLLM(question,files)
+    return getFinalResult(prompt,files)
 
-def queryLLM(query,file):
+def queryLLM(query,files):
     try:
         headers = {
             "Content-Type": "application/json",
@@ -61,7 +61,7 @@ def queryLLM(query,file):
         data = {"model": "gpt-4o-mini", 
                 "messages": [{"role": "system","content": META_PROMPT},{"role": "user", "content": query}]
                 }
-        response = requests.post("https://aiproxy.sanand.workers.dev/openai/v1/chat/completions", headers=headers, json=data, files=file)
+        response = requests.post("https://aiproxy.sanand.workers.dev/openai/v1/chat/completions", headers=headers, json=data, files=files)
     except Exception as e:
         if 400 <= response.status_code < 500:
             print(str(e))
@@ -72,7 +72,7 @@ def queryLLM(query,file):
     response.raise_for_status() 
     return response.json()["choices"][0]["message"]["content"].strip()
     
-def getFinalResult(prompt,file):
+def getFinalResult(prompt,files):
     try:
         headers = {
             "Content-Type": "application/json",
@@ -81,7 +81,7 @@ def getFinalResult(prompt,file):
         data = {"model": "gpt-4o-mini", 
                 "messages": [{"role": "user", "content": prompt}]
                 }
-        response = requests.post("https://aiproxy.sanand.workers.dev/openai/v1/chat/completions", headers=headers, json=data, files=file)
+        response = requests.post("https://aiproxy.sanand.workers.dev/openai/v1/chat/completions", headers=headers, json=data, files=files)
     except Exception as e:
         if 400 <= response.status_code < 500:
             print(str(e))
